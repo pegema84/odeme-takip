@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ödeme Takip</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2563eb">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Ödeme Takip">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--bg:#f4f5f7;--card:#fff;--tx:#1c1f26;--mu:#6b7280;--ln:#e5e7eb;--ac:#2563eb;--ac2:#dbe7ff;--rd:#dc2626;--rd2:#fee2e2;--gn:#16a34a;--gn2:#dcfce7;--or:#d97706;--sh:0 1px 3px rgba(0,0,0,.08)}
+@media(prefers-color-scheme:dark){:root{--bg:#111318;--card:#1b1e26;--tx:#eceef3;--mu:#9aa1ad;--ln:#2b303b;--ac:#6ea0ff;--ac2:#22304f;--rd:#f87171;--rd2:#3b1d1d;--gn:#4ade80;--gn2:#173524;--or:#fbbf24;--sh:none}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.35 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+body{padding:calc(env(safe-area-inset-top) + 8px) 0 calc(env(safe-area-inset-bottom) + 150px)}
+.wrap{max-width:560px;margin:0 auto;padding:0 14px}
+h1{font-size:22px;margin:8px 0 2px}
+.status{font-size:12px;color:var(--mu);margin-bottom:10px}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0 12px}
+.sum{background:var(--card);border-radius:14px;padding:12px;box-shadow:var(--sh)}
+.sum small{display:block;color:var(--mu);font-size:12px}
+.sum b{font-size:20px}
+.sum.bad b{color:var(--rd)}
+.tabs{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--ln);padding-bottom:env(safe-area-inset-bottom);z-index:5}
+.tabs button{flex:1;border:0;background:none;color:var(--mu);padding:12px 4px 10px;font-size:13px;font-weight:600}
+.tabs button.on{color:var(--ac)}
+.tabs button span{display:block;font-size:20px;line-height:1}
+.sec{font-size:13px;font-weight:700;color:var(--mu);margin:16px 4px 6px;text-transform:uppercase;letter-spacing:.03em}
+.sec.bad{color:var(--rd)}
+.list{background:var(--card);border-radius:14px;box-shadow:var(--sh);overflow:hidden}
+.row{display:flex;align-items:center;gap:12px;padding:12px;border-bottom:1px solid var(--ln)}
+.row:last-child{border-bottom:0}
+.chk{flex:none;width:30px;height:30px;border-radius:50%;border:2px solid var(--mu);background:none;color:#fff;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0}
+.chk.done{background:var(--gn);border-color:var(--gn)}
+.chk.late{border-color:var(--rd)}
+.mid{flex:1;min-width:0;text-align:left;background:none;border:0;color:inherit;font:inherit;padding:0}
+.mid .t{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mid .s{font-size:12.5px;color:var(--mu);margin-top:2px}
+.mid .s.bad{color:var(--rd);font-weight:600}
+.amt{font-weight:700;white-space:nowrap}
+.amt.na{color:var(--mu);font-weight:400}
+.tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:99px;background:var(--ac2);color:var(--ac);margin-right:6px;font-weight:600}
+.empty{text-align:center;color:var(--mu);padding:30px 10px}
+.btn{border:0;border-radius:12px;padding:12px 16px;font-size:15px;font-weight:600;background:var(--ac);color:#fff}
+.btn.sec2{background:var(--ac2);color:var(--ac)}
+.btn.del{background:var(--rd2);color:var(--rd)}
+.fab{position:fixed;right:18px;bottom:calc(env(safe-area-inset-bottom) + 76px);width:58px;height:58px;border-radius:50%;border:0;background:var(--ac);color:#fff;font-size:32px;box-shadow:0 4px 14px rgba(0,0,0,.3);z-index:6}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:10;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--card);width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:16px 16px calc(env(safe-area-inset-bottom) + 18px)}
+.sheet h2{margin:0 0 12px;font-size:19px}
+label{display:block;font-size:12.5px;color:var(--mu);margin:12px 0 4px;font-weight:600}
+input,textarea{width:100%;font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--ln);border-radius:10px;padding:11px;-webkit-appearance:none;appearance:none}
+input[type=date]{min-height:46px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--ln);background:var(--bg);color:var(--tx);border-radius:99px;padding:8px 13px;font-size:14px}
+.chip.on{background:var(--ac);border-color:var(--ac);color:#fff}
+.hint{font-size:12px;color:var(--mu);margin-top:4px}
+.acts{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.acts .btn{flex:1;min-width:120px}
+.bar{display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid var(--ln);font-size:14px}
+.bar:last-child{border-bottom:0}
+.bar .n{width:78px;flex:none;color:var(--mu)}
+.bar .tr{flex:1;height:10px;background:var(--bg);border-radius:6px;overflow:hidden}
+.bar .tr i{display:block;height:100%;background:var(--ac);border-radius:6px}
+.bar .v{width:92px;text-align:right;font-weight:600;flex:none}
+.kv{display:flex;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--ln);font-size:14px}
+.kv:last-child{border-bottom:0}
+.kv span:first-child{color:var(--mu)}
+textarea{min-height:110px;font-size:12px;font-family:ui-monospace,monospace}
+.pad{padding:12px}
+.cal{flex:none;text-decoration:none;font-size:20px;padding:4px;line-height:1}
+.lnk{display:block;text-align:center;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Ödeme Takip</h1>
+  <div class="status" id="status">yükleniyor…</div>
+  <div id="app"></div>
+</div>
+<button class="fab" id="fab" aria-label="Ödeme ekle">+</button>
+<nav class="tabs" id="tabs">
+  <button data-tab="up"><span>🗓️</span>Yaklaşan</button>
+  <button data-tab="paid"><span>✅</span>Ödenen</button>
+  <button data-tab="sum"><span>📊</span>Özet</button>
+</nav>
+<div id="modal"></div>
+
+<script>
+"use strict";
+const CATS=["Aidat","Fatura","Vergi","Taksit","Diğer"];
+const MON=["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"];
+const MONF=["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
+const LS="odeme-takip-v1";
+const S={items:[],tab:"up",form:null,backup:""};
+const VERSION="v1.0";
+
+/* ---------- yardımcılar ---------- */
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pad=n=>String(n).padStart(2,"0");
+const ymd=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const todayStr=()=>ymd(new Date());
+const parse=s=>{const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)};
+const dayDiff=s=>Math.round((parse(s)-parse(todayStr()))/86400000);
+const fmtMoney=n=>n==null?"—":Number(n).toLocaleString("tr-TR",{maximumFractionDigits:2})+" ₺";
+const fmtDate=s=>{if(!s)return"";const d=parse(s);return d.getDate()+" "+MON[d.getMonth()]+" "+d.getFullYear()};
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+function addMonths(s,n,anchorDay){
+  const d=parse(s);const t=new Date(d.getFullYear(),d.getMonth()+n,1);
+  const last=new Date(t.getFullYear(),t.getMonth()+1,0).getDate();
+  t.setDate(Math.min(anchorDay||d.getDate(),last));return ymd(t);
+}
+function gcal(x,count){
+  const p=parse(x.due);p.setDate(p.getDate()+1);
+  const s=x.due.replace(/-/g,""),e=ymd(p).replace(/-/g,"");
+  const t=x.title+(x.amount!=null?" – "+fmtMoney(x.amount):"");
+  let u="https://calendar.google.com/calendar/render?action=TEMPLATE&text="+encodeURIComponent(t)+
+    "&dates="+s+"/"+e+"&details="+encodeURIComponent("Ödeme Takip · "+x.cat+(x.of>1?" · Taksit "+x.no+"/"+x.of:""));
+  if(count>1)u+="&recur="+encodeURIComponent("RRULE:FREQ=MONTHLY;COUNT="+count);
+  return u;
+}
+function rel(s){
+  const n=dayDiff(s);
+  if(n===0)return"Bugün";if(n===1)return"Yarın";if(n===-1)return"Dün gecikti";
+  return n>0?n+" gün sonra":Math.abs(n)+" gün gecikti";
+}
+const sum=a=>a.reduce((t,x)=>t+(x.amount||0),0);
+
+/* ---------- kayıt ---------- */
+function setStatus(t){document.getElementById("status").textContent=t}
+function save(){
+  try{localStorage.setItem(LS,JSON.stringify(S.items));setStatus("Kaydedildi ✓ · "+S.items.length+" kayıt (bu telefonda)")}
+  catch(e){setStatus("Kaydedilemedi! Depolama dolu veya kapalı olabilir")}
+}
+function init(){
+  try{const r=localStorage.getItem(LS);if(r){const a=JSON.parse(r);if(Array.isArray(a))S.items=a}}catch(e){}
+  try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}
+  render();
+  setStatus("Veriler yalnızca bu telefonda saklanıyor · "+VERSION);
+  if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+}
+
+/* ---------- görünüm ---------- */
+function rowHTML(x,paidView){
+  const late=!x.paid&&dayDiff(x.due)<0;
+  const sub=[];
+  sub.push('<span class="tag">'+esc(x.cat)+'</span>');
+  if(x.of>1)sub.push("Taksit "+x.no+"/"+x.of);
+  if(paidView){sub.push((x.paidOn?fmtDate(x.paidOn)+" ödendi":"ödendi"))}
+  else sub.push(fmtDate(x.due)+" · "+rel(x.due));
+  const bad=late?" bad":"";
+  return '<div class="row"><button class="chk'+(x.paid?" done":"")+(late?" late":"")+'" data-act="toggle" data-id="'+esc(x.id)+'" aria-label="Ödendi işaretle">'+(x.paid?"✓":"")+'</button>'+
+   '<button class="mid" data-act="edit" data-id="'+esc(x.id)+'"><div class="t">'+esc(x.title)+'</div><div class="s'+bad+'">'+sub.join(" ")+(x.note?" · "+esc(x.note):"")+'</div></button>'+
+   '<div class="amt'+(x.amount==null?" na":"")+'">'+(x.amount==null?"tutar yok":fmtMoney(x.amount))+'</div>'+
+   (x.paid?"":'<a class="cal" href="'+esc(gcal(x))+'" target="_blank" rel="noopener" aria-label="Takvime ekle">📅</a>')+'</div>';
+}
+function viewUp(){
+  const un=S.items.filter(x=>!x.paid).sort((a,b)=>a.due.localeCompare(b.due));
+  const ym=todayStr().slice(0,7);
+  const late=un.filter(x=>x.due<todayStr());
+  const month=un.filter(x=>x.due.slice(0,7)===ym);
+  let h='<div class="cards"><div class="sum'+(late.length?" bad":"")+'"><small>Gecikmiş ('+late.length+')</small><b>'+fmtMoney(sum(late))+'</b></div>'+
+        '<div class="sum"><small>Bu ay kalan ('+month.length+')</small><b>'+fmtMoney(sum(month))+'</b></div></div>';
+  if(!un.length){
+    h+='<div class="empty">Bekleyen ödeme yok.<br>Sağ alttaki <b>+</b> ile ekle.'+(S.items.length?"":'<br><br><button class="btn sec2" data-act="seed">Notumdaki kayıtları ekle</button>')+'</div>';
+    return h;
+  }
+  if(late.length){h+='<div class="sec bad">Gecikmiş</div><div class="list">'+late.map(x=>rowHTML(x)).join("")+'</div>'}
+  const rest=un.filter(x=>x.due>=todayStr());
+  let cur="";
+  rest.forEach(x=>{
+    const k=x.due.slice(0,7);
+    if(k!==cur){if(cur)h+='</div>';cur=k;const [y,m]=k.split("-");h+='<div class="sec">'+MONF[+m-1]+" "+y+'</div><div class="list">'}
+    h+=rowHTML(x);
+  });
+  if(cur)h+='</div>';
+  return h;
+}
+function viewPaid(){
+  const p=S.items.filter(x=>x.paid).sort((a,b)=>(b.paidOn||b.due).localeCompare(a.paidOn||a.due));
+  if(!p.length)return'<div class="empty">Henüz ödenmiş kayıt yok.</div>';
+  return'<div class="sec">Ödenenler ('+p.length+')</div><div class="list">'+p.map(x=>rowHTML(x,true)).join("")+'</div>';
+}
+function viewSum(){
+  let h="";
+  const now=new Date();const months=[];
+  for(let i=0;i<6;i++){const d=new Date(now.getFullYear(),now.getMonth()+i,1);months.push(d.getFullYear()+"-"+pad(d.getMonth()+1))}
+  const un=S.items.filter(x=>!x.paid);
+  const tot=months.map(k=>sum(un.filter(x=>x.due.slice(0,7)===k)));
+  const mx=Math.max(1,...tot);
+  h+='<div class="sec">Önümüzdeki 6 ay (ödenmemiş)</div><div class="list">'+months.map((k,i)=>{const [y,m]=k.split("-");return'<div class="bar"><div class="n">'+MON[+m-1]+" "+y+'</div><div class="tr"><i style="width:'+Math.round(tot[i]/mx*100)+'%"></i></div><div class="v">'+fmtMoney(tot[i])+'</div></div>'}).join("")+'</div>';
+  // taksit serileri
+  const groups={};
+  S.items.forEach(x=>{if(x.grp&&x.of>1){(groups[x.grp]=groups[x.grp]||[]).push(x)}});
+  const gl=Object.values(groups).map(a=>{a.sort((p,q)=>p.due.localeCompare(q.due));const left=a.filter(x=>!x.paid);return{a,left}}).filter(g=>g.left.length);
+  if(gl.length){
+    h+='<div class="sec">Devam eden taksitler</div><div class="list">'+gl.map(g=>{
+      const last=g.a[g.a.length-1];
+      return'<div class="kv"><span>'+esc(g.a[0].title)+'<br><small>'+g.left.length+' taksit kaldı · son: '+fmtDate(last.due)+'</small></span><b>'+fmtMoney(sum(g.left))+'</b></div>';
+    }).join("")+'</div>';
+  }
+  // bu yıl ödenen
+  const yr=String(now.getFullYear());
+  const paid=S.items.filter(x=>x.paid&&((x.paidOn||x.due).slice(0,4)===yr));
+  const rows=CATS.map(c=>[c,sum(paid.filter(x=>x.cat===c)),paid.filter(x=>x.cat===c).length]).filter(r=>r[2]);
+  if(rows.length){
+    h+='<div class="sec">'+yr+' yılı ödenenler</div><div class="list">'+rows.map(r=>'<div class="kv"><span>'+esc(r[0])+' ('+r[2]+' kayıt)</span><b>'+fmtMoney(r[1])+'</b></div>').join("")+'<div class="kv"><span><b>Toplam</b></span><b>'+fmtMoney(sum(paid))+'</b></div></div>';
+  }
+  h+='<div class="sec">Takvim</div><div class="list pad"><div class="hint" style="margin:0 0 10px">Bekleyen tüm ödemeleri, bir gün önceden ve o gün sabahı hatırlatmalı olarak telefonun takvimine aktarır.</div><div class="acts" style="margin-top:0"><button class="btn sec2" data-act="ics">📅 Bekleyenleri takvime aktar (.ics)</button></div></div>';
+  // yedek
+  h+='<div class="sec">Yedek</div><div class="list pad"><div class="hint" style="margin:0 0 10px">Veriler yalnızca bu telefonda durur. Telefonu değiştirirsen ya da uygulama verisini silersen kaybolur; ara sıra yedek al.</div>'+
+     '<div class="acts" style="margin-top:0"><button class="btn sec2" data-act="exp">Yedeği göster</button><button class="btn sec2" data-act="imp">Yedekten yükle</button></div>';
+  if(S.backup!==null&&S.backup!==""){
+    h+='<textarea id="bk" spellcheck="false">'+esc(S.backup==="__IMPORT__"?"":S.backup)+'</textarea>'+
+       (S.backup==="__IMPORT__"?'<div class="hint">Yedek metnini buraya yapıştır.</div><div class="acts"><button class="btn" data-act="doimp">Yükle (mevcut kayıtların yerine geçer)</button></div>':'<div class="hint">Metni seçip kopyala ve bir yere kaydet.</div>');
+  }
+  h+='</div>';
+  return h;
+}
+function render(){
+  document.getElementById("app").innerHTML=S.tab==="up"?viewUp():S.tab==="paid"?viewPaid():viewSum();
+  document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.tab===S.tab));
+  document.getElementById("fab").style.display=S.tab==="sum"?"none":"";
+  renderForm();
+}
+
+/* ---------- form ---------- */
+function openForm(id){
+  if(id){const x=S.items.find(i=>i.id===id);if(!x)return;S.form={id:x.id,title:x.title,cat:x.cat,amount:x.amount==null?"":String(x.amount),due:x.due,count:1,note:x.note||"",edit:true,x}}
+  else S.form={id:null,title:"",cat:"Aidat",amount:"",due:todayStr(),count:1,note:"",edit:false};
+  renderForm();
+}
+function renderForm(){
+  const m=document.getElementById("modal");const f=S.form;
+  if(!f){m.innerHTML="";return}
+  const chips=CATS.map(c=>'<button type="button" class="chip'+(f.cat===c?" on":"")+'" data-act="cat" data-v="'+esc(c)+'">'+esc(c)+'</button>').join("");
+  const series=f.edit&&f.x.of>1;
+  m.innerHTML='<div class="ov" data-act="close"><div class="sheet" id="sheet"><h2>'+(f.edit?"Ödemeyi düzenle":"Yeni ödeme")+'</h2>'+
+   '<label>Ne için?</label><input id="f_title" placeholder="Örn: Aralık aidat, Telefon taksiti" value="'+esc(f.title)+'">'+
+   '<label>Tür</label><div class="chips">'+chips+'</div>'+
+   '<div class="two"><div><label>'+(f.count>1?"Taksit tutarı (₺)":"Tutar (₺)")+'</label><input id="f_amt" inputmode="decimal" placeholder="boş bırakılabilir" value="'+esc(f.amount)+'"></div>'+
+   '<div><label>'+(f.edit?"Son ödeme tarihi":"İlk ödeme tarihi")+'</label><input id="f_due" type="date" value="'+esc(f.due)+'"></div></div>'+
+   (f.edit?(series?'<div class="hint">Bu bir taksit serisi: '+f.x.no+'. / '+f.x.of+'. taksit</div>':"")
+     :'<label>Kaç kez? (taksit / her ay tekrar)</label><input id="f_cnt" type="number" min="1" max="120" inputmode="numeric" value="'+esc(f.count)+'"><div class="hint">1 = tek ödeme. 12 yazarsan 12 ay boyunca her ay aynı gün eklenir.</div>')+
+   '<label>Not</label><input id="f_note" placeholder="isteğe bağlı" value="'+esc(f.note)+'">'+
+   '<div class="acts"><button class="btn" data-act="save">Kaydet</button><button class="btn sec2" data-act="close">Vazgeç</button></div>'+
+   (series&&!f.x.paid?(function(){const left=S.items.filter(i=>i.grp===f.x.grp&&!i.paid&&i.due>=f.x.due).length;return left>1?'<div class="acts"><a class="btn sec2 lnk" href="'+esc(gcal(f.x,left))+'" target="_blank" rel="noopener">📅 Kalan '+left+' taksiti takvime ekle (aylık)</a></div>':""})():"")+
+   (f.edit?'<div class="acts"><button class="btn del" data-act="del">Sil</button>'+(series?'<button class="btn del" data-act="delser">Tüm seriyi sil</button>':"")+'</div>':"")+
+   '</div></div>';
+}
+function readForm(){
+  const f=S.form;if(!f)return;
+  const g=id=>{const e=document.getElementById(id);return e?e.value:null};
+  if(g("f_title")!==null)f.title=g("f_title");
+  if(g("f_amt")!==null)f.amount=g("f_amt");
+  if(g("f_due")!==null)f.due=g("f_due");
+  if(g("f_cnt")!==null)f.count=Math.max(1,Math.min(120,parseInt(g("f_cnt"))||1));
+  if(g("f_note")!==null)f.note=g("f_note");
+}
+function submitForm(){
+  readForm();const f=S.form;
+  const title=f.title.trim();
+  if(!title){document.getElementById("f_title").focus();return}
+  if(!f.due){document.getElementById("f_due").focus();return}
+  const a=f.amount.trim()===""?null:parseFloat(f.amount.replace(",","."));
+  const amount=(a==null||isNaN(a))?null:a;
+  if(f.edit){
+    const x=S.items.find(i=>i.id===f.id);
+    Object.assign(x,{title,cat:f.cat,amount,due:f.due,note:f.note.trim()});
+  }else{
+    const n=f.count,grp=n>1?uid():null,day=parse(f.due).getDate();
+    for(let i=0;i<n;i++){
+      S.items.push({id:uid(),title,cat:f.cat,amount,due:i?addMonths(f.due,i,day):f.due,paid:false,paidOn:null,note:f.note.trim(),grp,no:i+1,of:n});
+    }
+  }
+  S.form=null;save();render();
+}
+
+/* ---------- olaylar ---------- */
+document.addEventListener("click",e=>{
+  const t=e.target.closest("[data-act],[data-tab]");
+  if(!t)return;
+  if(t.dataset.tab){S.tab=t.dataset.tab;S.backup="";render();window.scrollTo(0,0);return}
+  const act=t.dataset.act;
+  if(act==="close"){if(e.target.closest("#sheet")&&!e.target.closest("button[data-act=close]"))return;S.form=null;renderForm();return}
+  if(e.target.closest("#sheet")&&t.classList.contains("ov"))return;
+  if(act==="toggle"){const x=S.items.find(i=>i.id===t.dataset.id);if(x){x.paid=!x.paid;x.paidOn=x.paid?todayStr():null;save();render()}}
+  else if(act==="edit")openForm(t.dataset.id);
+  else if(act==="cat"){readForm();S.form.cat=t.dataset.v;renderForm()}
+  else if(act==="save")submitForm();
+  else if(act==="del"){S.items=S.items.filter(i=>i.id!==S.form.id);S.form=null;save();render()}
+  else if(act==="delser"){const g=S.form.x.grp;S.items=S.items.filter(i=>i.grp!==g);S.form=null;save();render()}
+  else if(act==="seed")seed();
+  else if(act==="ics")exportICS();
+  else if(act==="exp"){S.backup=JSON.stringify(S.items);render()}
+  else if(act==="imp"){S.backup="__IMPORT__";render()}
+  else if(act==="doimp"){
+    try{const a=JSON.parse(document.getElementById("bk").value);
+      if(!Array.isArray(a)||a.some(x=>!x||typeof x.id!=="string"||typeof x.due!=="string"))throw 0;
+      S.items=a;S.backup="";save();render();setStatus("Yedek yüklendi")}
+    catch(err){setStatus("Yedek metni geçerli değil")}
+  }
+});
+document.getElementById("fab").addEventListener("click",()=>openForm());
+function icsEsc(t){return String(t).replace(/\\/g,"\\\\").replace(/;/g,"\\;").replace(/,/g,"\\,").replace(/\n/g,"\\n")}
+function exportICS(){
+  const un=S.items.filter(x=>!x.paid);
+  if(!un.length){setStatus("Aktarılacak bekleyen ödeme yok");return}
+  const L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Odeme Takip//TR","CALSCALE:GREGORIAN"];
+  const stamp=new Date().toISOString().replace(/[-:]/g,"").replace(/\.\d+/,"");
+  un.forEach(x=>{
+    const p=parse(x.due);p.setDate(p.getDate()+1);
+    const t=x.title+(x.amount!=null?" – "+fmtMoney(x.amount):"");
+    L.push("BEGIN:VEVENT","UID:"+x.id+"@odeme-takip","DTSTAMP:"+stamp,
+      "DTSTART;VALUE=DATE:"+x.due.replace(/-/g,""),"DTEND;VALUE=DATE:"+ymd(p).replace(/-/g,""),
+      "SUMMARY:"+icsEsc("💳 "+t),"DESCRIPTION:"+icsEsc(x.cat+(x.of>1?" · Taksit "+x.no+"/"+x.of:"")+(x.note?" · "+x.note:"")),
+      "BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:"+icsEsc(x.title),"TRIGGER:-PT15H","END:VALARM",
+      "BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:"+icsEsc(x.title),"TRIGGER:PT9H","END:VALARM","END:VEVENT");
+  });
+  L.push("END:VCALENDAR");
+  const blob=new Blob([L.join("\r\n")],{type:"text/calendar"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="odeme-takip.ics";
+  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+  setStatus(un.length+" ödeme takvim dosyasına yazıldı; indirilen dosyayı aç");
+}
+function seed(){
+  const d="2026-11-19",mk=(title,cat,amount)=>({id:uid(),title,cat,amount,due:d,paid:true,paidOn:d,note:"",grp:null,no:1,of:1});
+  S.items.push(
+    mk("Kasım aidat","Aidat",2455),mk("Kasım çevre","Aidat",890),mk("Kasım demirbaş","Aidat",300),
+    mk("Emlak vergisi 2026","Vergi",null),mk("Gelir vergisi 2026 – 2. taksit","Vergi",null),mk("MTV 2026 (komple)","Vergi",null),
+    {id:uid(),title:"Telefon taksit ödemesi",cat:"Taksit",amount:null,due:"2026-12-02",paid:false,paidOn:null,note:"tutarı düzenleyip girebilirsin",grp:null,no:1,of:1}
+  );
+  save();render();
+}
+init();
+</script>
+</body>
+</html>
