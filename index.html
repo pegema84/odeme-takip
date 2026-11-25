@@ -5,14 +5,15 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Ödeme Takip</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#2563eb">
+<meta name="theme-color" content="#f4f5f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111318" media="(prefers-color-scheme: dark)">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Ödeme Takip">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
-:root{--bg:#f4f5f7;--card:#fff;--tx:#1c1f26;--mu:#6b7280;--ln:#e5e7eb;--ac:#2563eb;--ac2:#dbe7ff;--rd:#dc2626;--rd2:#fee2e2;--gn:#16a34a;--gn2:#dcfce7;--or:#d97706;--sh:0 1px 3px rgba(0,0,0,.08)}
+:root{color-scheme:light dark;--bg:#f4f5f7;--card:#fff;--tx:#1c1f26;--mu:#6b7280;--ln:#e5e7eb;--ac:#2563eb;--ac2:#dbe7ff;--rd:#dc2626;--rd2:#fee2e2;--gn:#16a34a;--gn2:#dcfce7;--or:#d97706;--sh:0 1px 3px rgba(0,0,0,.08)}
 @media(prefers-color-scheme:dark){:root{--bg:#111318;--card:#1b1e26;--tx:#eceef3;--mu:#9aa1ad;--ln:#2b303b;--ac:#6ea0ff;--ac2:#22304f;--rd:#f87171;--rd2:#3b1d1d;--gn:#4ade80;--gn2:#173524;--or:#fbbf24;--sh:none}}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.35 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
@@ -34,7 +35,7 @@ h1{font-size:22px;margin:8px 0 2px}
 .list{background:var(--card);border-radius:14px;box-shadow:var(--sh);overflow:hidden}
 .row{display:flex;align-items:center;gap:12px;padding:12px;border-bottom:1px solid var(--ln)}
 .row:last-child{border-bottom:0}
-.chk{flex:none;width:30px;height:30px;border-radius:50%;border:2px solid var(--mu);background:none;color:#fff;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0}
+.chk{flex:none;width:38px;height:38px;border-radius:50%;border:2px solid var(--mu);background:none;color:#fff;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0}
 .chk.done{background:var(--gn);border-color:var(--gn)}
 .chk.late{border-color:var(--rd)}
 .mid{flex:1;min-width:0;text-align:left;background:none;border:0;color:inherit;font:inherit;padding:0}
@@ -52,12 +53,12 @@ h1{font-size:22px;margin:8px 0 2px}
 .ov{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:10;display:flex;align-items:flex-end;justify-content:center}
 .sheet{background:var(--card);width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:16px 16px calc(env(safe-area-inset-bottom) + 18px)}
 .sheet h2{margin:0 0 12px;font-size:19px}
-label{display:block;font-size:12.5px;color:var(--mu);margin:12px 0 4px;font-weight:600}
+label,.lab{display:block;font-size:12.5px;color:var(--mu);margin:12px 0 4px;font-weight:600}
 input,textarea{width:100%;font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--ln);border-radius:10px;padding:11px;-webkit-appearance:none;appearance:none}
 input[type=date]{min-height:46px}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{border:1px solid var(--ln);background:var(--bg);color:var(--tx);border-radius:99px;padding:8px 13px;font-size:14px}
+.chip{border:1px solid var(--ln);background:var(--bg);color:var(--tx);border-radius:99px;padding:11px 15px;font-size:14px}
 .chip.on{background:var(--ac);border-color:var(--ac);color:#fff}
 .hint{font-size:12px;color:var(--mu);margin-top:4px}
 .acts{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
@@ -73,32 +74,37 @@ input[type=date]{min-height:46px}
 .kv span:first-child{color:var(--mu)}
 textarea{min-height:110px;font-size:12px;font-family:ui-monospace,monospace}
 .pad{padding:12px}
-.cal{flex:none;text-decoration:none;font-size:20px;padding:4px;line-height:1}
+.cal{flex:none;text-decoration:none;font-size:20px;padding:11px 9px;line-height:1}
 .lnk{display:block;text-align:center;text-decoration:none}
+button,a,input,textarea{touch-action:manipulation}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.amt,.sum b,.bar .v,.kv b{font-variant-numeric:tabular-nums}
+.ov,.sheet{overscroll-behavior:contain}
+.mid .t{text-wrap:balance}
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>Ödeme Takip</h1>
-  <div class="status" id="status">yükleniyor…</div>
+  <div class="status" id="status" aria-live="polite">yükleniyor…</div>
   <div id="app"></div>
 </div>
 <button class="fab" id="fab" aria-label="Ödeme ekle">+</button>
 <nav class="tabs" id="tabs">
-  <button data-tab="up"><span>🗓️</span>Yaklaşan</button>
-  <button data-tab="paid"><span>✅</span>Ödenen</button>
-  <button data-tab="sum"><span>📊</span>Özet</button>
+  <button data-tab="up"><span aria-hidden="true">🗓️</span>Yaklaşan</button>
+  <button data-tab="paid"><span aria-hidden="true">✅</span>Ödenen</button>
+  <button data-tab="sum"><span aria-hidden="true">📊</span>Özet</button>
 </nav>
 <div id="modal"></div>
 
 <script>
 "use strict";
 const CATS=["Aidat","Fatura","Vergi","Taksit","Diğer"];
-const MON=["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"];
-const MONF=["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
+const MON=Array.from({length:12},(_,i)=>new Intl.DateTimeFormat("tr-TR",{month:"short"}).format(new Date(2026,i,1)));
+const MONF=Array.from({length:12},(_,i)=>new Intl.DateTimeFormat("tr-TR",{month:"long"}).format(new Date(2026,i,1)));
 const LS="odeme-takip-v1";
 const S={items:[],tab:"up",form:null,backup:""};
-const VERSION="v1.1";
+const VERSION="v1.2";
 
 /* ---------- yardımcılar ---------- */
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -107,8 +113,8 @@ const ymd=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
 const todayStr=()=>ymd(new Date());
 const parse=s=>{const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)};
 const dayDiff=s=>Math.round((parse(s)-parse(todayStr()))/86400000);
-const fmtMoney=n=>n==null?"—":Number(n).toLocaleString("tr-TR",{maximumFractionDigits:2})+" ₺";
-const fmtDate=s=>{if(!s)return"";const d=parse(s);return d.getDate()+" "+MON[d.getMonth()]+" "+d.getFullYear()};
+const fmtMoney=n=>n==null?"—":Number(n).toLocaleString("tr-TR",{minimumFractionDigits:Number.isInteger(Number(n))?0:2,maximumFractionDigits:2})+" ₺";
+const fmtDate=s=>s?new Intl.DateTimeFormat("tr-TR",{day:"numeric",month:"short",year:"numeric"}).format(parse(s)):"";
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 function addMonths(s,n,anchorDay){
   const d=parse(s);const t=new Date(d.getFullYear(),d.getMonth()+n,1);
@@ -154,10 +160,10 @@ function rowHTML(x,paidView){
   if(paidView){sub.push((x.paidOn?fmtDate(x.paidOn)+" ödendi":"ödendi"))}
   else sub.push(fmtDate(x.due)+" · "+rel(x.due));
   const bad=late?" bad":"";
-  return '<div class="row"><button class="chk'+(x.paid?" done":"")+(late?" late":"")+'" data-act="toggle" data-id="'+esc(x.id)+'" aria-label="Ödendi işaretle">'+(x.paid?"✓":"")+'</button>'+
+  return '<div class="row"><button class="chk'+(x.paid?" done":"")+(late?" late":"")+'" data-act="toggle" data-id="'+esc(x.id)+'" aria-pressed="'+(x.paid?"true":"false")+'" aria-label="'+(x.paid?"Ödendi, geri al: ":"Ödendi olarak işaretle: ")+esc(x.title)+'">'+(x.paid?"✓":"")+'</button>'+
    '<button class="mid" data-act="edit" data-id="'+esc(x.id)+'"><div class="t">'+esc(x.title)+'</div><div class="s'+bad+'">'+sub.join(" ")+(x.note?" · "+esc(x.note):"")+'</div></button>'+
    '<div class="amt'+(x.amount==null?" na":"")+'">'+(x.amount==null?"tutar yok":fmtMoney(x.amount))+'</div>'+
-   (x.paid?"":'<a class="cal" href="'+esc(gcal(x))+'" target="_blank" rel="noopener" aria-label="Takvime ekle">📅</a>')+'</div>';
+   (x.paid?"":'<a class="cal" href="'+esc(gcal(x))+'" target="_blank" rel="noopener" aria-label="Takvime ekle: '+esc(x.title)+'">📅</a>')+'</div>';
 }
 function viewUp(){
   const un=S.items.filter(x=>!x.paid).sort((a,b)=>a.due.localeCompare(b.due));
@@ -216,7 +222,7 @@ function viewSum(){
   h+='<div class="sec">Yedek</div><div class="list pad"><div class="hint" style="margin:0 0 10px">Veriler yalnızca bu telefonda durur. Telefonu değiştirirsen ya da uygulama verisini silersen kaybolur; ara sıra yedek al.</div>'+
      '<div class="acts" style="margin-top:0"><button class="btn sec2" data-act="exp">Yedeği göster</button><button class="btn sec2" data-act="imp">Yedekten yükle</button></div>';
   if(S.backup!==null&&S.backup!==""){
-    h+='<textarea id="bk" spellcheck="false">'+esc(S.backup==="__IMPORT__"?"":S.backup)+'</textarea>'+
+    h+='<textarea id="bk" aria-label="Yedek metni" spellcheck="false">'+esc(S.backup==="__IMPORT__"?"":S.backup)+'</textarea>'+
        (S.backup==="__IMPORT__"?'<div class="hint">Yedek metnini buraya yapıştır.</div><div class="acts"><button class="btn" data-act="doimp">Yükle (mevcut kayıtların yerine geçer)</button></div>':'<div class="hint">Metni seçip kopyala ve bir yere kaydet.</div>');
   }
   h+='</div>';
@@ -224,7 +230,7 @@ function viewSum(){
 }
 function render(){
   document.getElementById("app").innerHTML=S.tab==="up"?viewUp():S.tab==="paid"?viewPaid():viewSum();
-  document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.tab===S.tab));
+  document.querySelectorAll("#tabs button").forEach(b=>{const on=b.dataset.tab===S.tab;b.classList.toggle("on",on);if(on)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")});
   document.getElementById("fab").style.display=S.tab==="sum"?"none":"";
   renderForm();
 }
@@ -238,19 +244,19 @@ function openForm(id){
 function renderForm(){
   const m=document.getElementById("modal");const f=S.form;
   if(!f){m.innerHTML="";return}
-  const chips=CATS.map(c=>'<button type="button" class="chip'+(f.cat===c?" on":"")+'" data-act="cat" data-v="'+esc(c)+'">'+esc(c)+'</button>').join("");
+  const chips=CATS.map(c=>'<button type="button" aria-pressed="'+(f.cat===c?"true":"false")+'" class="chip'+(f.cat===c?" on":"")+'" data-act="cat" data-v="'+esc(c)+'">'+esc(c)+'</button>').join("");
   const series=f.edit&&f.x.of>1;
-  m.innerHTML='<div class="ov" data-act="close"><div class="sheet" id="sheet"><h2>'+(f.edit?"Ödemeyi düzenle":"Yeni ödeme")+'</h2>'+
-   '<label>Ne için?</label><input id="f_title" placeholder="Örn: Aralık aidat, Telefon taksiti" value="'+esc(f.title)+'">'+
-   '<label>Tür</label><div class="chips">'+chips+'</div>'+
-   '<div class="two"><div><label>'+(f.count>1?"Taksit tutarı (₺)":"Tutar (₺)")+'</label><input id="f_amt" inputmode="decimal" placeholder="boş bırakılabilir" value="'+esc(f.amount)+'"></div>'+
-   '<div><label>'+(f.edit?"Son ödeme tarihi":"İlk ödeme tarihi")+'</label><input id="f_due" type="date" value="'+esc(f.due)+'"></div></div>'+
+  m.innerHTML='<div class="ov" data-act="close"><div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="f_h"><h2 id="f_h">'+(f.edit?"Ödemeyi düzenle":"Yeni ödeme")+'</h2>'+
+   '<label for="f_title">Ne için?</label><input id="f_title" name="baslik" autocomplete="off" placeholder="Örn: Aralık aidat…" value="'+esc(f.title)+'">'+
+   '<div class="lab" id="f_cat_l">Tür</div><div class="chips" role="group" aria-labelledby="f_cat_l">'+chips+'</div>'+
+   '<div class="two"><div><label for="f_amt">'+(f.count>1?"Taksit tutarı (₺)":"Tutar (₺)")+'</label><input id="f_amt" name="tutar" autocomplete="off" spellcheck="false" inputmode="decimal" placeholder="Boş bırakılabilir…" value="'+esc(f.amount)+'"></div>'+
+   '<div><label for="f_due">'+(f.edit?"Son ödeme tarihi":"İlk ödeme tarihi")+'</label><input id="f_due" name="tarih" type="date" value="'+esc(f.due)+'"></div></div>'+
    (f.edit?(series?'<div class="hint">Bu bir taksit serisi: '+f.x.no+'. / '+f.x.of+'. taksit</div>':"")
-     :'<label>Kaç kez? (taksit / her ay tekrar)</label><input id="f_cnt" type="number" min="1" max="120" inputmode="numeric" value="'+esc(f.count)+'"><div class="hint">1 = tek ödeme. 12 yazarsan 12 ay boyunca her ay aynı gün eklenir.</div>')+
-   '<label>Not</label><input id="f_note" placeholder="isteğe bağlı" value="'+esc(f.note)+'">'+
+     :'<label for="f_cnt">Kaç kez? (taksit / her ay tekrar)</label><input id="f_cnt" name="adet" autocomplete="off" type="number" min="1" max="120" inputmode="numeric" value="'+esc(f.count)+'"><div class="hint">1 = tek ödeme. 12 yazarsan 12 ay boyunca her ay aynı gün eklenir.</div>')+
+   '<label for="f_note">Not</label><input id="f_note" name="not" autocomplete="off" placeholder="İsteğe bağlı…" value="'+esc(f.note)+'">'+
    '<div class="acts"><button class="btn" data-act="save">Kaydet</button><button class="btn sec2" data-act="close">Vazgeç</button></div>'+
    (series&&!f.x.paid?(function(){const left=S.items.filter(i=>i.grp===f.x.grp&&!i.paid&&i.due>=f.x.due).length;return left>1?'<div class="acts"><a class="btn sec2 lnk" href="'+esc(gcal(f.x,left))+'" target="_blank" rel="noopener">📅 Kalan '+left+' taksiti takvime ekle (aylık)</a></div>':""})():"")+
-   (f.edit?'<div class="acts"><button class="btn del" data-act="del">Sil</button>'+(series?'<button class="btn del" data-act="delser">Tüm seriyi sil</button>':"")+'</div>':"")+
+   (f.edit?'<div class="acts"><button class="btn del" data-act="del">'+(f.confirm==="del"?"Emin misin? Silmek için tekrar dokun":"Sil")+'</button>'+(series?'<button class="btn del" data-act="delser">'+(f.confirm==="delser"?"Emin misin? Tüm seri silinecek, tekrar dokun":"Tüm seriyi sil")+'</button>':"")+'</div>':"")+
    '</div></div>';
 }
 function readForm(){
@@ -293,8 +299,8 @@ document.addEventListener("click",e=>{
   else if(act==="edit")openForm(t.dataset.id);
   else if(act==="cat"){readForm();S.form.cat=t.dataset.v;renderForm()}
   else if(act==="save")submitForm();
-  else if(act==="del"){S.items=S.items.filter(i=>i.id!==S.form.id);S.form=null;save();render()}
-  else if(act==="delser"){const g=S.form.x.grp;S.items=S.items.filter(i=>i.grp!==g);S.form=null;save();render()}
+  else if(act==="del"){if(S.form.confirm!=="del"){readForm();S.form.confirm="del";renderForm();return}S.items=S.items.filter(i=>i.id!==S.form.id);S.form=null;save();render()}
+  else if(act==="delser"){if(S.form.confirm!=="delser"){readForm();S.form.confirm="delser";renderForm();return}const g=S.form.x.grp;S.items=S.items.filter(i=>i.grp!==g);S.form=null;save();render()}
   else if(act==="seed")seed();
   else if(act==="ics")exportICS();
   else if(act==="exp"){S.backup=JSON.stringify(S.items);render()}
@@ -307,6 +313,7 @@ document.addEventListener("click",e=>{
   }
 });
 document.getElementById("fab").addEventListener("click",()=>openForm());
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&S.form){S.form=null;renderForm()}});
 function icsEsc(t){return String(t).replace(/\\/g,"\\\\").replace(/;/g,"\\;").replace(/,/g,"\\,").replace(/\n/g,"\\n")}
 function exportICS(){
   const un=S.items.filter(x=>!x.paid);
